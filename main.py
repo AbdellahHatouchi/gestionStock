@@ -14,11 +14,12 @@ def display_menu():
     | 8. Delete Product exist in store                 |
     | 9. Search Product by ID                          |
     | 10. Search Product by name                       |
-    | 11. Exsit                                        |
+    | 11. Exit                                         |
     +--------------------------------------------------+
     """)
 
 my_store = Stock("project Store",'tinghir','486548564')
+my_store.create_product(Product('p1',67,55,"fjhfk",5))
 choix = None
 product_id =""
 product_name = ""
@@ -70,6 +71,14 @@ def main():
                     else:
                         raise
                 except :
+                    product_id =""
+                    product_name = ""
+                    price = 0.0
+                    pruchase_cost = 0.0
+                    tva = 0.0
+                    discount = 0.0
+                    is_disponible = True
+                    desgnation = ""
                     print('Opss! something went wrong :( !!!')
             elif choix == 6:
                 product_id = str(input('Please write product ID : '))
@@ -149,5 +158,5 @@ def main():
                         pass
         except:
             print('the value not exist in menu please select correct value!')
-
-main()
+if __name__ == "__main__":
+    main()
