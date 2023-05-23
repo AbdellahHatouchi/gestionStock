@@ -28,16 +28,18 @@ menu = ["Display Infortmaion of Store",
         "Search Product by name",
         "Exit"]
 try:
+    def replace_content(n:int,frame:ttk.Frame):
+        # Delete the current content of the frame
+        frame.pack_forget()
+        select(n)
     def display_all_product(frame):
-        table = ttk.Treeview(frame, columns=('col_1', 'col_2', 'col_3','col_4','col_5'))
+        table_cols = ['Product Name','Price','Disponible','TVA','Discount']
+        table = ttk.Treeview(frame, columns=[f'col_{i+1}' for i in range(len(table_cols))])
         table.heading('#0', text='ID')
-        table.heading('col_1', text='Product Name')
-        table.heading('col_2', text='Price')
-        table.heading('col_3', text='Disponible')
-        table.heading('col_4', text='TVA')
-        table.heading('col_5', text='Discount')
-        
         table.column('#0',width=100)
+        for i,col in enumerate(table_cols):
+            table.heading(f'col_{i+1}', text=col)
+        
         table.column('col_1',width=200)
         table.column('col_2',width=100)
         table.column('col_3',width=100)
@@ -46,75 +48,64 @@ try:
         # Inserting sample data
        
         if len(my_store.products)==0:
-            pass
+            label = ttk.Label(frame,text="List of Products is Empty!!",font=('TkDefaultFont',16),foreground="#1e88e5")
+            label.grid(column=0,row=1,sticky=tk.NSEW,pady=60)
+            btn = ttk.Button(frame,text="Create New Product",command=lambda: replace_content(5,frame),padding=8)
+            btn.grid(column=0,columnspan=2,row=2,sticky=tk.NSEW,pady=8)
         else:
             for id,product in enumerate(my_store.products):
                 table.insert(parent='', index='end', iid=id, text=product.product_id, values=(product.name,product.price,product.is_disponible,product.tva,product.discount))
 
-        table.grid(column=0,row=1,sticky=tk.NSEW)
-        scrollbar = ttk.Scrollbar(frame,orient=tk.VERTICAL,command=table.yview)
-        table.configure(yscrollcommand=scrollbar.set)
-        scrollbar.grid(row=1,column=1,sticky='ns')
+            table.grid(column=0,row=1,sticky=tk.NSEW)
+            scrollbar = ttk.Scrollbar(frame,orient=tk.VERTICAL,command=table.yview)
+            table.configure(yscrollcommand=scrollbar.set)
+            scrollbar.grid(row=1,column=1,sticky='ns')
     def display_store(frame):
-
+        label_values = {
+            "Name":my_store.name,
+            "Phone Number":my_store.tel,
+            "Address":my_store.address
+        }
         # Store information
-        name_label = ttk.Label(frame, text="Name:",font=("TKDefaultFont",16))
-        name_label.grid(row=1, column=0, padx=5, pady=5)
-        name_value = ttk.Label(frame, text=my_store.name,font=("TKDefaultFont",16))
-        name_value.grid(row=1, column=1, padx=5, pady=5)
-
-        phone_label = ttk.Label(frame, text="Phone Number:",font=("TKDefaultFont",16))
-        phone_label.grid(row=2, column=0, padx=5, pady=5)
-        phone_value = ttk.Label(frame, text=my_store.tel,font=("TKDefaultFont",16))
-        phone_value.grid(row=2, column=1, padx=5, pady=5)
-
-        address_label = ttk.Label(frame, text="Address:",font=("TKDefaultFont",16))
-        address_label.grid(row=3, column=0, padx=5, pady=5)
-        address_value = ttk.Label(frame, text=my_store.address,font=("TKDefaultFont",16))
-        address_value.grid(row=3, column=1, padx=5, pady=5)
+        for n,[label,value] in enumerate(label_values.items()):
+            label_var = ttk.Label(frame, text=label+" :",font=("TKDefaultFont",16))
+            label_var.grid(row=n+1, column=0,sticky=tk.NSEW, padx=5, pady=5)
+            value_var = ttk.Label(frame, text=value,font=("TKDefaultFont",16))
+            value_var.grid(row=n+1, column=1,sticky=tk.NSEW, padx=5, pady=5)
+        
     def create_table(f,cols):
         table = ttk.Treeview(f,columns=cols)
 
     def create_product(frame):
+        entry_labels = {
+            "name":'Product Name',
+            "price":"Product Price",
+            "pruchase_cost":"Pruchase Cost",
+            "tva":"TVA",
+            "discount":"Discount",
+            "desgnation":"Desgnation"
+        }
         def data():
-            name = name_value.get()
-            price = float(price_value.get())
-            purchase_cost = float(purchase_cost_value.get())
-            tva = float(tva_value.get())
-            discount = float(discount_value.get())
-            desgnation = desgnation_value.get()
-            product =  Product(name,price,purchase_cost,desgnation,tva,discount)
+            # Get the data from the entry widgets
+            product_data = {}
+            for entry_name, entry_widget in entry_widgets.items():
+                product_data[entry_name] = entry_widget.get()
+            #use destructuring dict  
+            product = Product(**product_data)
             my_store.create_product(product)
             messagebox.showinfo('Create Product',f"Product with ID {product.product_id} Created Succefully :)")
-        name_label = ttk.Label(frame, text="Product Name:",font=("TKDefaultFont",14))
-        name_label.grid(row=1, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        name_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        name_value.grid(row=1, column=1,sticky=tk.NSEW, padx=5, pady=5)
-
-        price_label = ttk.Label(frame, text="Price :",font=("TKDefaultFont",14))
-        price_label.grid(row=2, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        price_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        price_value.grid(row=2, column=1,sticky=tk.NSEW, padx=5, pady=5)
-
-        purchase_cost_label = ttk.Label(frame, text="Purchase Cost:",font=("TKDefaultFont",14))
-        purchase_cost_label.grid(row=3, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        purchase_cost_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        purchase_cost_value.grid(row=3, column=1,sticky=tk.NSEW, padx=5, pady=5)
+            # Reset the form
+            for entry_widget in entry_widgets.values():
+                entry_widget.delete(0, tk.END)
         
-        tva_label = ttk.Label(frame, text="TVA:",font=("TKDefaultFont",14))
-        tva_label.grid(row=4, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        tva_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        tva_value.grid(row=4, column=1,sticky=tk.NSEW, padx=5, pady=5)
+        # Create the form elements using ttk widgets
+        entry_widgets:dict[str,ttk.Entry] = {}
+        for n,[entry_name, entry_label] in enumerate(entry_labels.items()):
+            label = ttk.Label(frame, text=entry_label,font=("TKDefaultFont",14))
+            label.grid(row=n+1, column=0,sticky=tk.NSEW, padx=5, pady=5)
+            entry_widgets[entry_name] = ttk.Entry(frame,font=("TKDefaultFont",14))
+            entry_widgets[entry_name].grid(row=n+1, column=1,sticky=tk.NSEW, padx=5, pady=5)
         
-        discount_label = ttk.Label(frame, text="Discount:",font=("TKDefaultFont",14))
-        discount_label.grid(row=5, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        discount_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        discount_value.grid(row=5, column=1,sticky=tk.NSEW, padx=5, pady=5)
-        
-        desgnation_label = ttk.Label(frame, text="Desgnation:",font=("TKDefaultFont",14))
-        desgnation_label.grid(row=6, column=0,sticky=tk.NSEW, padx=5, pady=5)
-        desgnation_value = ttk.Entry(frame,font=("TKDefaultFont",14))
-        desgnation_value.grid(row=6, column=1,sticky=tk.NSEW, padx=5, pady=5)
         btn = ttk.Button(frame,text="Create Product",padding=8,command=data)
         btn.grid(column=0,row=7,columnspan=2,sticky=tk.NSEW,padx=16,pady=8)
 
